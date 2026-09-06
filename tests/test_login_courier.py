@@ -5,8 +5,8 @@ import pytest
 import allure
 
 
-@allure.epic("Управление курьерами")
-@allure.feature("Авторизация курьера")
+@allure.suite("Проверки авторизации курьера")
+@allure.sub_suite("Авторизация курьера")
 class TestLoginCourier:
 
     @allure.title("Успешная авторизация курьера в системе")

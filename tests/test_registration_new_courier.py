@@ -4,11 +4,12 @@ from url import Url
 import pytest
 import allure
 
-@allure.epic("Управление курьерами")
-@allure.feature("Регистрация нового курьера")
+
+@allure.suite("Проверки регистрации курьера")
+@allure.sub_suite("Регистрация курьера")
 class TestRegistrationCourier:
     
-    @allure.title("Успешное создание курьера со всеми обязательными полями")
+    @allure.title("Успешная регистрация курьера со всеми обязательными полями")
     @allure.description("Проверяем, что передача валидных случайных строк в login, password и firstName возвращает код 201 и ответ {'ok': true}.")
     def test_register_new_courier_returns_201(self):
 
@@ -30,7 +31,7 @@ class TestRegistrationCourier:
         # если регистрация прошла успешно - код ответа 201
         assert response.status_code == 201 and response.json() == {"ok": True}
     
-    @allure.title("Успешное создание курьера без указания имени")
+    @allure.title("Успешная регистрация курьера без указания имени")
     @allure.description("Проверяем граничное условие: поле firstName является необязательным, аккаунт должен успешно создаваться с пустой строкой.")
     def test_registration_without_first_name_returns_201(self):
         

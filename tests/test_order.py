@@ -5,22 +5,22 @@ import pytest
 import allure
 
 
-@allure.epic("Операции с заказами")
-@allure.feature("Создание заказа")
+@allure.suite("Проверки создания заказов")
+@allure.sub_suite("Создание заказа")
 class TestOrder:
 
-    @allure.title("Создание заказа с различными параметрами цвета самоката")
-    @allure.description("Параметризованный тест: проверяем успешное создание заказа при выборе черного, серого, обоих цветов или без указания цвета.")
+    @allure.title("Создание заказа при"+" {test_name} "+"цвета.")
+    @allure.description("Параметризованный тест: проверяем успешное создание заказа при"+" {test_name} "+"цвета.")
     @pytest.mark.parametrize(
-        "name_test, is_color_black, is_color_gray",
+        "test_name, is_color_black, is_color_gray",
         [
-            ("1", True, True),
-            ("1", False, True),
-            ("1", True, False),
-            ("1", False, False)
+            ("выборе черного и белого", True, True),
+            ("выборе белого", False, True),
+            ("выборе черного", True, False),
+            ("отсутствии выбора", False, False)
         ] 
     )
-    def test_color_order(self, name_test, is_color_black, is_color_gray):
+    def test_color_order(self, test_name, is_color_black, is_color_gray):
         payload = TestData.order_create(is_color_black = is_color_black, is_color_gray = is_color_gray)
 
         response = requests.post(Url.ORDER_CREATE, data=payload)

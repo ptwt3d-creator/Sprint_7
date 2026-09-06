@@ -5,8 +5,8 @@ import pytest
 import allure
 
 
-@allure.epic("Операции с заказами")
-@allure.feature("Получение списка заказов")
+@allure.suite("Проверки получения списка заказов")
+@allure.sub_suite("Получение списка всех заказов")
 class TestListOrder:
 
     @allure.title("Успешное получение списка всех заказов")
