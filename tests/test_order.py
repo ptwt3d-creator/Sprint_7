@@ -1,8 +1,8 @@
 import requests
-from testdata import TestData
-from url import Url
+from data import TestUrl
 import pytest
 import allure
+from api import ApiRequests
 
 
 @allure.suite("Проверки создания заказов")
@@ -12,18 +12,18 @@ class TestOrder:
     @allure.title("Создание заказа при"+" {test_name} "+"цвета.")
     @allure.description("Параметризованный тест: проверяем успешное создание заказа при"+" {test_name} "+"цвета.")
     @pytest.mark.parametrize(
-        "test_name, is_color_black, is_color_gray",
+        "test_name, colors",
         [
-            ("выборе черного и белого", True, True),
-            ("выборе белого", False, True),
-            ("выборе черного", True, False),
-            ("отсутствии выбора", False, False)
+            ("выборе черного и белого", [True, True]),
+            ("выборе белого", [False, True]),
+            ("выборе черного", [True, False]),
+            ("явном отсутствии выбора", [False, False])
         ] 
     )
-    def test_color_order(self, test_name, is_color_black, is_color_gray):
-        payload = TestData.order_create(is_color_black = is_color_black, is_color_gray = is_color_gray)
+    def test_color_order(self, test_name, colors, make_order_data_payload):
+        payload = make_order_data_payload({"colors": [colors]})
 
-        response = requests.post(Url.ORDER_CREATE, data=payload)
+        r = ApiRequests.order_create(payload)
 
-        assert response.status_code == 201 and type(response.json()["track"]) is int 
+        assert "track" in r.json()
 
