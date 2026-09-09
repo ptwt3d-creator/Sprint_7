@@ -1,5 +1,4 @@
 import requests
-from data import TestData, TestUrl
 import pytest
 import allure
 from helpers import Helpers

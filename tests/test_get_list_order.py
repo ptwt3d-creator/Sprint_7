@@ -1,7 +1,6 @@
 import requests
 import pytest
 import allure
-from data import TestUrl
 from api import ApiRequests
 
 
