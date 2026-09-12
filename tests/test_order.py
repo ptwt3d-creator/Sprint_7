@@ -19,10 +19,11 @@ class TestOrder:
             ("явном отсутствии выбора", [False, False])
         ] 
     )
-    def test_color_order(self, test_name, colors, make_order_data_payload):
+    def test_color_order_returns_201_body(self, test_name, colors, make_order_data_payload):
         payload = make_order_data_payload({"colors": [colors]})
 
         r = ApiRequests.order_create(payload)
 
-        assert "track" in r.json()
+        body = r.json()
+        assert r.status_code == 201 and body.get("track") is not None and body.get("track") > 0
 
