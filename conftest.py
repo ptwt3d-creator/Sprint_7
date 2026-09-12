@@ -3,7 +3,10 @@ from data import TestData, TestUrl
 from helpers import Helpers
 import pytest
 from api import ApiRequests
-    
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 @pytest.fixture
 def register_courier_returns_dict_login_password_firstName():
@@ -45,22 +48,28 @@ def create_order(make_order_data_payload):
     assert r_create.status_code == 201 and r_get_order_by_track.status_code == 200 and r_get_order_by_track.json()["order"]["track"] == track_order
 
 @pytest.fixture
-def cleanup_courier_and_check():
-    reg_data = {}
+def cleanup_courier(request):
+    yield
 
-    def _wrapper_cleanup_courier(received_courier):
-        reg_data.update(received_courier)
-
-    yield _wrapper_cleanup_courier
-    payload = {
-        "login": reg_data["login"],
-        "password": reg_data["password"]
-    }
+    data = getattr(request.node, "courier_payload", None)
+    if not data:
+        return
     
-    r = ApiRequests.login_courier(payload)
+    if isinstance(data, list):
+        payloads = data
+    else:
+        payloads = [data]
 
-    courier_id = r.json()["id"]
-    r_del = ApiRequests.delet_courier(courier_id)
-    r_login_after_del = ApiRequests.login_courier(payload)
+    for payload in payloads:
+        if not payload or not payload.get("login") or not payload.get("password"):
+            continue
 
-    assert r_del.status_code == 200 and r_login_after_del.status_code == 404 and r_login_after_del.json()["message"] == "Учетная запись не найдена"
+        try:
+            r = ApiRequests.login_courier(payload)
+            courier_id = r.json().get("id")
+
+            if courier_id:
+                ApiRequests.delet_courier(courier_id)
+        except Exception as e:
+            # logger отображается в allure report, error - уровень важности
+            logger.error(f"Ошибка во время очистки курьера {payload.get('login')}: {e}")

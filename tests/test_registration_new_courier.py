@@ -11,46 +11,53 @@ class TestRegistrationCourier:
     
     @allure.title("Успешная регистрация курьера со всеми обязательными полями")
     @allure.description("Проверяем, что передача валидных случайных строк в login, password и firstName возвращает код 201.")
-    def test_register_new_courier_returns_201(self, cleanup_courier_and_check):
+    def test_register_new_courier_returns_201(self, request, cleanup_courier):
 
         payload = Helpers.generate_payload_registration()
+        request.node.courier_payload = payload
 
         r = ApiRequests.register_courier(payload)
 
-        cleanup_courier_and_check(payload)
         assert r.status_code == 201
 
     @allure.title("Успешная регистрация курьера со всеми обязательными полями")
     @allure.description("Проверяем, что передача валидных случайных строк в login, password и firstName возвращает тело успешного ответа {'ok': true}.")
-    def test_register_new_courier_returns_successful_response_body(self, cleanup_courier_and_check):
+    def test_register_new_courier_returns_successful_response_body(self, request, cleanup_courier):
         
         payload = Helpers.generate_payload_registration()
+        request.node.courier_payload = payload
 
         r = ApiRequests.register_courier(payload)
 
-        cleanup_courier_and_check(payload)
         assert r.json() == {"ok": True}
 
     @allure.title("Попытка регистрации дубликата курьера")
     @allure.description("Проверяем, что при попытке зарегистрировать пользователя с уже существующим в базе логином возвращается код 409.")
-    def test_register_courier_with_taken_login_return_409(self, register_courier_returns_dict_login_password_firstName):
-        
-        reg_data = register_courier_returns_dict_login_password_firstName
+    def test_register_courier_with_taken_login_return_409(self, request, cleanup_courier):
+        request.node.courier_payload = []
 
-        payload = {
-            "login": reg_data["login"],
+        # регистрация курьера
+        # нельзя использовать одно имя "payload" или прошлые словари будут перезаписаны в request.node(конкретно сейчас) тк они переданы ссылками
+        payload_1 = Helpers.generate_payload_registration()
+        request.node.courier_payload.append(payload_1)
+
+        r = ApiRequests.register_courier(payload_1)
+
+        # регистрация второго курьера с тем же логином
+        payload_2 = {
+            "login": payload_1["login"],
             "password": Helpers.generate_random_string(),
             "firstName": Helpers.generate_random_string()
         }
+        request.node.courier_payload.append(payload_2)
 
-        # отправляем запрос на регистрацию курьера и сохраняем ответ в переменную r
-        r = ApiRequests.register_courier(payload)
+        r = ApiRequests.register_courier(payload_2)
 
         assert r.status_code == 409
     
     @allure.title("Успешная регистрация курьера без указания имени")
     @allure.description("Проверяем граничное условие: поле firstName является необязательным, аккаунт должен успешно создаваться с пустой строкой.")
-    def test_registration_without_firstName_returns_201(self, cleanup_courier_and_check):
+    def test_registration_without_firstName_returns_201(self, request, cleanup_courier):
         
         reg_data = Helpers.generate_payload_registration()
 
@@ -59,15 +66,15 @@ class TestRegistrationCourier:
             "password": reg_data["password"],
             "firstName": ""
         }
+        request.node.courier_payload = payload
 
         r = ApiRequests.register_courier(payload)
 
-        cleanup_courier_and_check(payload)
         assert r.status_code == 201
 
     @allure.title("Попытка регистрации без логина")
     @allure.description("Проверяем, что попытка регистрации курьера с пустым полем login возвращает код 400.")
-    def test_registration_without_login_returns_400(self):
+    def test_registration_without_login_returns_400(self, request, cleanup_courier):
         
         reg_data = Helpers.generate_payload_registration()
 
@@ -76,6 +83,7 @@ class TestRegistrationCourier:
             "password": reg_data["password"],
             "firstName": reg_data["firstName"]
         }
+        request.node.courier_payload = payload
 
         r = ApiRequests.register_courier(payload)
 
@@ -83,7 +91,7 @@ class TestRegistrationCourier:
 
     @allure.title("Попытка регистрации без пароля")
     @allure.description("Проверяем, что попытка регистрации курьера с пустым полем password возвращает код 400.")
-    def test_registration_without_password_returns_400(self):
+    def test_registration_without_password_returns_400(self, request, cleanup_courier):
         
         reg_data = Helpers.generate_payload_registration()
 
@@ -92,6 +100,7 @@ class TestRegistrationCourier:
             "password": "",
             "firstName": reg_data["firstName"]
         }
+        request.node.courier_payload = payload
 
         r = ApiRequests.register_courier(payload)
 
