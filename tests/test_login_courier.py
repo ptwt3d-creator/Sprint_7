@@ -11,7 +11,7 @@ class TestLoginCourier:
 
     @allure.title("Успешная авторизация курьера в системе")
     @allure.description("Проверяем, что при передаче валидных логина и пароля сервер возвращает код 200.")
-    def test_login_courier_rteurns_200(self, register_courier_returns_dict_login_password_firstName):
+    def test_login_courier_rteurns_200_body(self, register_courier_returns_dict_login_password_firstName):
         
         reg_data = register_courier_returns_dict_login_password_firstName
         
@@ -22,26 +22,12 @@ class TestLoginCourier:
 
         r = ApiRequests.login_courier(payload)
 
-        assert r.status_code == 200
-    
-    @allure.title("Успешная авторизация курьера в системе")
-    @allure.description("Проверяем, что при передаче валидных логина и пароля сервер возвращает ID курьера.")
-    def test_login_courier_rteurns_id(self, register_courier_returns_dict_login_password_firstName):
-        
-        reg_data = register_courier_returns_dict_login_password_firstName
-
-        payload = {
-            "login": reg_data["login"],
-            "password": reg_data["password"]
-        }
-
-        r = ApiRequests.login_courier(payload)
-
-        assert r.json()["id"] > 0
+        body = r.json()
+        assert r.status_code == 200 and body.get("id") is not None and body.get("id") > 0
 
     @allure.title("Попытка авторизации без логина")
     @allure.description("Проверяем, что при попытке входа с пустым логином возвращается код 400 и валидное сообщение об ошибке.")
-    def test_login_without_login_rteurns_400(self, register_courier_returns_dict_login_password_firstName):
+    def test_login_without_login_rteurns_400_body(self, register_courier_returns_dict_login_password_firstName):
         
         reg_data = register_courier_returns_dict_login_password_firstName
         
@@ -51,12 +37,12 @@ class TestLoginCourier:
         }
 
         r = ApiRequests.login_courier(payload)
-
-        assert r.status_code == 400
+        
+        assert r.status_code == 400 and r.json().get("message") == "Недостаточно данных для входа"
 
     @allure.title("Попытка авторизации без пароля")
     @allure.description("Проверяем, что при попытке входа с пустым паролем возвращается код 400 и валидное сообщение об ошибке.")
-    def test_login_without_password_rteurns_400(self, register_courier_returns_dict_login_password_firstName):
+    def test_login_without_password_rteurns_400_body(self, register_courier_returns_dict_login_password_firstName):
         
         reg_data = register_courier_returns_dict_login_password_firstName
         
@@ -67,11 +53,11 @@ class TestLoginCourier:
 
         r = ApiRequests.login_courier(payload)
 
-        assert r.status_code == 400
+        assert r.status_code == 400 and r.json().get("message") == "Недостаточно данных для входа"
 
     @allure.title("Попытка авторизации с не существующим логином")
     @allure.description("Проверяем, что при попытке входа с пустым логином возвращается код 404.")
-    def test_login_with_non_register_login_rteurns_404(self, register_courier_returns_dict_login_password_firstName):
+    def test_login_with_non_register_login_rteurns_404_body(self, register_courier_returns_dict_login_password_firstName):
         
         reg_data = register_courier_returns_dict_login_password_firstName
         
@@ -82,11 +68,11 @@ class TestLoginCourier:
 
         r = ApiRequests.login_courier(payload)
 
-        assert r.status_code == 404
+        assert r.status_code == 404 and r.json().get("message") == "Учетная запись не найдена"
     
     @allure.title("Попытка авторизации с не существующим паролем")
     @allure.description("Проверяем, что при попытке входа с пустым паролем возвращается код 404.")
-    def test_login_with_non_register_password_rteurns_404(self, register_courier_returns_dict_login_password_firstName):
+    def test_login_with_non_register_password_rteurns_404_body(self, register_courier_returns_dict_login_password_firstName):
         
         reg_data = register_courier_returns_dict_login_password_firstName
         
@@ -97,11 +83,11 @@ class TestLoginCourier:
 
         r = ApiRequests.login_courier(payload)
 
-        assert r.status_code == 404
+        assert r.status_code == 404 and r.json().get("message") == "Учетная запись не найдена"
     
     @allure.title("Попытка авторизации под несуществующим курьером")
     @allure.description("Проверяем, что при попытке входа под случайными (не зарегистрированными) данными возвращается код 404.")
-    def test_login_with_non_register_courier_data_rteurns_404(self):
+    def test_login_with_non_register_courier_data_rteurns_404_body(self):
         
         payload = {
             "login": Helpers.generate_random_string(length=10),
@@ -110,6 +96,6 @@ class TestLoginCourier:
 
         r = ApiRequests.login_courier(payload)
 
-        assert r.status_code == 404
+        assert r.status_code == 404 and r.json().get("message") == "Учетная запись не найдена"
         
 
