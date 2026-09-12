@@ -12,7 +12,6 @@ class TestListOrder:
     @allure.title("Успешное получение списка всех заказов")
     @allure.description("Проверяем, что API возвращает список заказов, структура ответа корректна и содержит все обязательные поля.")
     def test_get_list_order_returns_list_order(self, create_order):
-        create_order
         
         r = ApiRequests.get_list_all_orders()
 
