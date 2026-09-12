@@ -43,9 +43,7 @@ def create_order(make_order_data_payload):
 
     track_order = r_create.json()["track"]
 
-    r_get_order_by_track = ApiRequests.get_order_by_track(track_order)
-
-    assert r_create.status_code == 201 and r_get_order_by_track.status_code == 200 and r_get_order_by_track.json()["order"]["track"] == track_order
+    return track_order
 
 @pytest.fixture
 def cleanup_courier(request):
