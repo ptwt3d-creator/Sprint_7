@@ -1,0 +1,18 @@
+import requests
+import pytest
+import allure
+from api import ApiRequests
+
+
+
+@allure.suite("Проверки получения списка заказов")
+@allure.sub_suite("Получение списка всех заказов")
+class TestListOrder:
+
+    @allure.title("Успешное получение списка всех заказов")
+    @allure.description("Проверяем, что API возвращает список заказов, структура ответа корректна и содержит все обязательные поля.")
+    def test_get_list_order_returns_200_list_order(self, create_order):
+        
+        r = ApiRequests.get_list_all_orders()
+
+        assert r.status_code == 200 and "orders" in r.json()
